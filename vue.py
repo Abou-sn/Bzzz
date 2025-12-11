@@ -1,7 +1,12 @@
 import tkiteasy as tke
-from classes import *
+from constantes import NCASES
+L,H = 1024,800
+g = tke.ouvrirFenetre(L,H)
 
-g = tke.ouvrirFenetre(1024,512)
+for x in range (0,L,L//NCASES):
+    for y in range(0,H,H//NCASES) :
+        g.dessinerLigne(x,y,x,H,'white')
+        g.dessinerLigne(x,y,L,y,'white')
 
-g.attendreClic()
+g.attendreTouche()
 g.fermerFenetre()

@@ -1,0 +1,48 @@
+# ---- JetBrains / PyCharm ----
+.idea/
+
+# ---- Environnements virtuels ----
+venv/
+env/
+.venv/
+
+# ---- Fichiers Python compilés ----
+__pycache__/
+*.py[cod]
+*.pyo
+
+# ---- Fichiers temporaires / logs ----
+*.log
+*.tmp
+*.temp
+
+# ---- Config système / OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Fichiers de configuration sensibles ----
+*.env
+.env
+.env.local
+
+# ---- Caches / données générées ----
+.cache/
+.mypy_cache/
+.pytest_cache/
+coverage/
+
+# ---- Build / distribution ----
+build/
+dist/
+*.egg-info/
+*.egg
+
+# ---- Jupyter Notebooks checkpoints ----
+.ipynb_checkpoints/
+
+# ---- VSCode ----
+.vscode/
+
+# ---- Autres IDE ----
+*.swp
+*.swo
