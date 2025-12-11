@@ -1,27 +1,43 @@
+import constantes as cst
+from random import randint
 class Abeilles :
-    def __init__ (self,x,y,etat) :
+    def __init__ (self,x : int ,y :int) -> None :
         self.qte_points = 0
         self.x = x
         self.y = y
-        self.etat = etat
+        self.etat = 'OK'
 
 class Ouvriere (Abeilles) :
-    def __init__(self, x, y, etat, ):
-        super().__init__(x, y, etat)
+    def __init__(self, x : int, y : int) -> None:
+        super().__init__(x, y)
         self.force = 1
         self.qte_nectar_max = 12
 class Bourdon (Abeilles) :
-    def __init__(self, x, y, etat, ):
-        super().__init__(x,y,etat)
+    def __init__(self, x : int, y : int) -> None:
+        super().__init__(x,y)
         self.force = 5
         self.qte_nectar_max = 1
 class Eclaireuse (Abeilles) :
-    def __init__(self, x, y, etat):
-        super().__init__(x,y,etat)
+    def __init__(self, x : int, y : int) -> None:
+        super().__init__(x,y)
         self.force = 1
         self.qte_nectar_max = 3
 
-e = Eclaireuse(5,5,"OK",qte)
-print(e.qte_points)
-e.qte_points +=2
-print(e.qte_points)
+class Fleurs :
+    def __init__(self,x : int, y : int) -> None :
+        self.x = x
+        self.y = y
+        self.qte_nectar = randint(1,cst.MAX_NECTAR)
+
+class Ruche :
+    def __init__(self,x : int ,y : int ,player : int) -> None:
+        self.x = x
+        self.y = y
+        self.player = player
+        self.stock_nectar = cst.NECTAR_INITIAL
+
+fleur1 = Fleurs(12,23)
+fleur2 = Fleurs(45,58)
+
+print(fleur1.qte_nectar)
+print(fleur2.qte_nectar)
