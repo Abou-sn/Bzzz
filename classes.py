@@ -25,8 +25,7 @@ class Eclaireuse (Abeilles) :
 
 class Fleurs :
     def __init__(self,x : int, y : int) -> None :
-        self.x = x
-        self.y = y
+        self.pos_fleur = (x,y)
         self.qte_nectar = randint(1,cst.MAX_NECTAR)
 
 class Ruche :
