@@ -3,35 +3,27 @@ from random import randint
 from libGrille import ouvrirFenetreGrille
 
 
-g = ouvrirFenetreGrille(cst.TAILLE_CARTE,cst.NCASES,cst.NCASES)
+g = ouvrirFenetreGrille(cst.TAILLE_CASES,cst.NCASES,cst.NCASES)
 
-def colorier_carte() :
+def creer_carte() : 
     # On colorie les ruches
-    for x in range(4):
-        for y in range (4) :
+    for x in range(cst.TAILLE_BASE):
+        for y in range (cst.TAILLE_BASE) :
             g.changerCarre(x,y,'blue')
             g.changerCarre(cst.NCASES-1-x,y,'green')
             g.changerCarre(x,cst.NCASES-1-y,'red')
             g.changerCarre(cst.NCASES-1-x,cst.NCASES-1-y,'pink')
-
     # On colorie la zone hors des ruches
-    for x in range (16):
-        for y in range(16):
+    for x in range (cst.NCASES):
+        for y in range(cst.NCASES):
             if g.getCouleur(x,y) not in ['blue','green','red','pink'] :
                 g.changerCarre(x,y,'LawnGreen')
-colorier_carte()
 
-def placer_fleur(x,y):
-    if g.getCouleur(x,y) not in ['blue','green','red','pink'] :
-        for i in range (16):
-            for j in range(16) :
-                g.changerCarre(x,y,'white')
-                g.changerCarre(cst.NCASES-1-x,y,'white')
-                g.changerCarre(x,cst.NCASES-1-y,'white')
-                g.changerCarre(cst.NCASES-1-x,cst.NCASES-1-y,'white')
-for i in range (4) :
-    placer_fleur(randint(0,16),randint(0,16))
 
+                
+creer_carte()               
+g.attendreTouche()
+g.afficherImage(cst.TAILLE_CASES,cst.TAILLE_CASES,'../sprites/fleur.png')
 g.attendreTouche()
 g.fermerFenetre()
 
