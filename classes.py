@@ -24,12 +24,13 @@ class Eclaireuse (Abeilles) :
         self.qte_nectar_max = 3
 
 class Fleurs :
-    def __init__(self,x : int, y : int) -> None :
-        self.pos_fleur = (x,y)
+    def __init__(self, x : int, y : int) -> None :
+        self.x = x
+        self.y = y
         self.qte_nectar = randint(1,cst.MAX_NECTAR)
 
 class Ruche :
-    def __init__(self,x : int ,y : int ,player : int) -> None:
+    def __init__(self, x : int , y : int , player : int) -> None:
         self.x = x
         self.y = y
         self.player = player
