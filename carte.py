@@ -21,11 +21,6 @@ for x in range (cst.NCASES):
             g.changerCarre(x,y,'LawnGreen')
 
 
-# On place les fleurs.
 
-
-g.afficherImage(cst.NCASES,cst.NCASES,'sprites/fleur.png')            
-g.attendreTouche()
 g.attendreTouche()
 g.fermerFenetre()
-

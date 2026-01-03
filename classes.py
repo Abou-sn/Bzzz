@@ -35,9 +35,3 @@ class Ruche :
         self.y = y
         self.player = player
         self.stock_nectar = cst.NECTAR_INITIAL
-
-fleur1 = Fleurs(12,23)
-fleur2 = Fleurs(45,58)
-
-print(fleur1.qte_nectar)
-print(fleur2.qte_nectar)
