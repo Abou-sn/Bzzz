@@ -28,6 +28,8 @@ class Fleurs :
         self.x = x
         self.y = y
         self.qte_nectar = randint(1,cst.MAX_NECTAR)
+    def __repr__(self) -> str:
+        return "Fleur"
 
 class Ruche :
     def __init__(self, x : int , y : int , player : int) -> None:
@@ -35,7 +37,5 @@ class Ruche :
         self.y = y
         self.player = player
         self.stock_nectar = cst.NECTAR_INITIAL
-    def __str__(self) -> str:
-        return f"Ruche({self.player})"
     def __repr__(self) -> str:
         return f"Ruche({self.player})"

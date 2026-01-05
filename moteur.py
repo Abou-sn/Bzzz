@@ -8,13 +8,18 @@ class Jeu:
         #Création de la grille vide
         # On précise que c'est une liste de listes contenant "N'importe quoi" (Any)
         self.grille: list[list[Any]] = [[None for y in range(cst.NCASES)] for x in range(cst.NCASES)]
-        self.placer_ruches()
         
         #listes des objets
         self.ruches = []
         self.fleurs = []
         self.abeilles = []
 
+        # Placer les ruches aux coins
+        self.placer_ruches()
+        self.placer_fleur()
+    
+    
+    
     def placer_ruches(self):
         # Ruche Joueur 1 (Haut-Gauche)
         r1 = Ruche(0, 0, 1)
@@ -36,7 +41,18 @@ class Jeu:
         self.ruches.append(r4)
         self.grille[0][cst.NCASES - 1] = r4
 
+    def placer_fleur(self):
+        cpt = 0
+        while cpt < cst.NFLEURS:
+            x = randint(0, cst.NCASES - 1)
+            y = randint(0, cst.NCASES - 1)
+
+            #Si la case est vide, donc pas de Ruche ou pas de fleur on place une fleur
+            if self.grille[x][y] is None:
+                fleur = Fleurs(x, y)
+                self.fleurs.append(fleur)
+                self.grille[x][y] = fleur
+            cpt += 1
+
 partie = Jeu()
-print(partie.grille)
-partie.placer_ruches()
 print(partie.grille)
