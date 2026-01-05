@@ -35,3 +35,7 @@ class Ruche :
         self.y = y
         self.player = player
         self.stock_nectar = cst.NECTAR_INITIAL
+    def __str__(self) -> str:
+        return f"Ruche({self.player})"
+    def __repr__(self) -> str:
+        return f"Ruche({self.player})"
