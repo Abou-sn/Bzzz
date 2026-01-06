@@ -17,9 +17,13 @@ class Jeu:
         # Placer les ruches aux coins
         self.placer_ruches()
         self.placer_fleur()
-    
-    
-    
+
+        for _ in range(4):    
+            self.creer_abeille("Ouvriere")
+
+        self.creer_abeille("Bourdon")
+        self.creer_abeille("Eclaireuse")
+
     def placer_ruches(self):
         # Ruche Joueur 1 (Haut-Gauche)
         r1 = Ruche(0, 0, 1)
@@ -53,6 +57,24 @@ class Jeu:
                 self.fleurs.append(fleur)
                 self.grille[x][y] = fleur
             cpt += 1
+    def creer_abeille(self, type_abeille: str) -> None:
+        for ruche in self.ruches:
+            #On recupere les infos de la ruche du joueur
+            x = ruche.x
+            y = ruche.y
+            joueur = ruche.joueur
 
+            if type_abeille == "Ouvriere":
+                abeille = Ouvriere(joueur, x, y)
+            elif type_abeille == "Bourdon":
+                abeille = Bourdon(joueur, x, y)
+            elif type_abeille == "Eclaireuse":
+                abeille = Eclaireuse(joueur, x, y)
+            else:
+                raise ValueError("Type d'abeille inconnu")
+        
+            self.abeilles.append(abeille)
+            
 partie = Jeu()
 print(partie.grille)
+print(f"Nombre total d'abeilles : {len(partie.abeilles)}")
