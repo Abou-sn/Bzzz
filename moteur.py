@@ -1,6 +1,7 @@
 import constantes as cst
 from classes import Ruche, Fleurs, Ouvriere, Bourdon, Eclaireuse
 from random import randint
+import tkiteasy as tke
 from typing import Any
 
 class Jeu:
@@ -8,7 +9,7 @@ class Jeu:
         #Création de la grille vide
         # On précise que c'est une liste de listes contenant "N'importe quoi" (Any)
         self.grille: list[list[Any]] = [[None for y in range(cst.NCASES)] for x in range(cst.NCASES)]
-        
+        self.fenetre = tke.ouvrirFenetre(cst.TAILLE_FENETRE, cst.TAILLE_FENETRE) #Créer la fenêtre
         #listes des objets
         self.ruches = []
         self.fleurs = []
@@ -74,7 +75,32 @@ class Jeu:
                 raise ValueError("Type d'abeille inconnu")
         
             self.abeilles.append(abeille)
+    def run(self):
+        touche = self.fenetre.attendreTouche()
+        while touche != 'Escape':
+            touche = self.fenetre.attendreTouche()
+        self.fenetre.fermerFenetre()
+    def afficher(self):
+        #Colorier le fond
+        self.fenetre.dessinerRectangle(0,0,cst.TAILLE_FENETRE,cst.TAILLE_FENETRE,'lightblue')
+        # Dessiner la grille
+        for x in range(0,cst.TAILLE_FENETRE,cst.TAILLE_CASES):
+            for y in range(0,cst.TAILLE_FENETRE,cst.TAILLE_CASES):
+                self.fenetre.dessinerLigne(x,0,x,cst.TAILLE_FENETRE,'blue')
+                self.fenetre.dessinerLigne(0,y,cst.TAILLE_FENETRE,y,'blue')
+        # Dessiner les ruches
+        for x in range (0,cst.TAILLE_CASES*4,cst.TAILLE_CASES):
+            for y in range (0,cst.TAILLE_CASES*4,cst.TAILLE_CASES):
+                self.fenetre.dessinerRectangle(x,y,cst.TAILLE_CASES,cst.TAILLE_CASES,'brown') #Ruche Joueur 1
+                self.fenetre.dessinerRectangle(cst.TAILLE_FENETRE - cst.TAILLE_CASES - x, y,cst.TAILLE_CASES, cst.TAILLE_CASES, 'red') #Ruche Joueur 2
+                self.fenetre.dessinerRectangle(cst.TAILLE_FENETRE - cst.TAILLE_CASES - x, cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, 'green') #Ruche Joueur 3
+                self.fenetre.dessinerRectangle(x,cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, 'yellow') #Ruche Joueur 4
+        # Dessiner les fleurs
+        for fleur in self.fleurs:
+            self.fenetre.dessinerRectangle(fleur.x * cst.TAILLE_CASES, fleur.y * cst.TAILLE_CASES, cst.TAILLE_CASES, cst.TAILLE_CASES, 'pink')
             
+
+
 partie = Jeu()
-print(partie.grille)
-print(f"Nombre total d'abeilles : {len(partie.abeilles)}")
+partie.afficher()
+partie.run()
