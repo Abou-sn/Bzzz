@@ -24,6 +24,7 @@ class Jeu:
 
         self.creer_abeille("Bourdon")
         self.creer_abeille("Eclaireuse")
+    
 
     def placer_ruches(self):
         # Ruche Joueur 1 (Haut-Gauche)
@@ -48,16 +49,44 @@ class Jeu:
 
     def placer_fleur(self):
         cpt = 0
+        # On doit placer NFLEURS part quart de la carte 
         while cpt < cst.NFLEURS:
-            x = randint(0, cst.NCASES - 1)
-            y = randint(0, cst.NCASES - 1)
+            # NCASES // 2 donne la moitié de la grille
+            x = randint(0, cst.NCASES // 2 - 1)
+            y = randint(0, cst.NCASES // 2 - 1)
 
-            #Si la case est vide, donc pas de Ruche ou pas de fleur on place une fleur
-            if self.grille[x][y] is None:
-                fleur = Fleurs(x, y)
-                self.fleurs.append(fleur)
-                self.grille[x][y] = fleur
-            cpt += 1
+            sur_ruche= (x < cst.TAILLE_BASE) and (y < cst.TAILLE_BASE)
+
+            # La case doit être vide (pas de Ruche, pas d'autre fleur)
+            if self.grille[x][y] is None and not sur_ruche:
+                # Calcul des coordonnées des 3 reflets
+                x2 = cst.NCASES - 1 - x
+                y2 = cst.NCASES - 1 - y
+                
+                f1 = Fleurs(x, y)
+                nectar_commun = f1.qte_nectar # On sauvegarde son nectar
+                
+                # Création des reflets avec la meme qte nectar
+                f2 = Fleurs(x2, y)
+                f2.qte_nectar = nectar_commun
+                
+                f3 = Fleurs(x, y2)
+                f3.qte_nectar = nectar_commun
+                
+                f4 = Fleurs(x2, y2)
+                f4.qte_nectar = nectar_commun
+                
+                # Ajout dans la liste des fleurs
+                self.fleurs.extend([f1, f2, f3, f4])
+                
+                # Placement sur la grille
+                self.grille[x][y] = f1
+                self.grille[x2][y] = f2
+                self.grille[x][y2] = f3
+                self.grille[x2][y2] = f4
+                
+                cpt += 1
+
     def creer_abeille(self, type_abeille: str) -> None:
         for ruche in self.ruches:
             #On recupere les infos de la ruche du joueur
@@ -75,6 +104,19 @@ class Jeu:
                 raise ValueError("Type d'abeille inconnu")
         
             self.abeilles.append(abeille)
+
+        # Dans moteur.py, dans la classe Jeu
+    def afficher_terminal(self):
+        for y in range(cst.NCASES):
+            ligne = ""
+            for x in range(cst.NCASES):
+                contenu = self.grille[x][y]
+                if contenu == None:
+                    ligne = ligne + "-   "  # Un point pour le vide
+                else:
+                    ligne = ligne + str(contenu) + " " # L'objet s'il y en a un
+            print(ligne)
+
     def run(self):
         touche = self.fenetre.attendreTouche()
         while touche != 'Escape':
@@ -96,11 +138,13 @@ class Jeu:
                 self.fenetre.dessinerRectangle(cst.TAILLE_FENETRE - cst.TAILLE_CASES - x, cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, 'green') #Ruche Joueur 3
                 self.fenetre.dessinerRectangle(x,cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, 'yellow') #Ruche Joueur 4
         # Dessiner les fleurs
+        marge = (cst.TAILLE_CASES) // 4
         for fleur in self.fleurs:
-            self.fenetre.dessinerRectangle(fleur.x * cst.TAILLE_CASES, fleur.y * cst.TAILLE_CASES, cst.TAILLE_CASES, cst.TAILLE_CASES, 'pink')
+            self.fenetre.afficherImage(fleur.x * cst.TAILLE_CASES + marge, fleur.y * cst.TAILLE_CASES + marge,'sprites/fleur.png')
             
 
 
 partie = Jeu()
 partie.afficher()
 partie.run()
+partie.afficher_terminal()

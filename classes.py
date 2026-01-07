@@ -18,16 +18,25 @@ class Ouvriere (Abeilles) :
         super().__init__(joueur, x, y)
         self.force = 1
         self.qte_nectar_max = 12
+    
+    def __repr__(self) -> str:
+        return f"O{self.joueur}"
 class Bourdon (Abeilles) :
     def __init__(self, joueur : int, x : int, y : int) -> None:
         super().__init__(joueur, x, y)
         self.force = 5
         self.qte_nectar_max = 1
+
+    def __repr__(self) -> str:
+        return f"B{self.joueur}"
+
 class Eclaireuse (Abeilles) :
     def __init__(self, joueur : int, x : int, y : int) -> None:
         super().__init__(joueur, x, y)
         self.force = 1
         self.qte_nectar_max = 3
+    def __repr__(self) -> str:
+        return f"E{self.joueur}"
 
 class Fleurs :
     def __init__(self, x : int, y : int) -> None :
