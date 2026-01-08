@@ -8,7 +8,12 @@ COUT_PONTE = 5
 TIME_KO = 5
 TAILLE_CASES = 50 #La taille des cases, qui définira ensuite la taille de la fenêtre
 TAILLE_FENETRE = NCASES * TAILLE_CASES
-
+COULEURS_JOUEURS= {
+            1: 'brown',   # Joueur 1 (Haut-Gauche)
+            2: 'red',     # Joueur 2 (Haut-Droite)
+            3: 'green',   # Joueur 3 (Bas-Droite)
+            4: 'yellow'   # Joueur 4 (Bas-Gauche)
+        }
 TOUCHES_DIR = {
     'Up': (0, -1),          
     'Down': (0, 1),

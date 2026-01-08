@@ -19,11 +19,8 @@ class Jeu:
         self.placer_ruches()
         self.placer_fleur()
 
-        for _ in range(4):    
-            self.creer_abeille("Ouvriere")
-
-        self.creer_abeille("Bourdon")
-        self.creer_abeille("Eclaireuse")
+       
+        self.creer_abeille("Ouvriere")
     
 
     def placer_ruches(self):
@@ -133,15 +130,32 @@ class Jeu:
         # Dessiner les ruches
         for x in range (0,cst.TAILLE_CASES*4,cst.TAILLE_CASES):
             for y in range (0,cst.TAILLE_CASES*4,cst.TAILLE_CASES):
-                self.fenetre.dessinerRectangle(x,y,cst.TAILLE_CASES,cst.TAILLE_CASES,'brown') #Ruche Joueur 1
-                self.fenetre.dessinerRectangle(cst.TAILLE_FENETRE - cst.TAILLE_CASES - x, y,cst.TAILLE_CASES, cst.TAILLE_CASES, 'red') #Ruche Joueur 2
-                self.fenetre.dessinerRectangle(cst.TAILLE_FENETRE - cst.TAILLE_CASES - x, cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, 'green') #Ruche Joueur 3
-                self.fenetre.dessinerRectangle(x,cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, 'yellow') #Ruche Joueur 4
+                self.fenetre.dessinerRectangle(x,y,cst.TAILLE_CASES,cst.TAILLE_CASES,cst.COULEURS_JOUEURS[1]) #Ruche Joueur 1
+                self.fenetre.dessinerRectangle(cst.TAILLE_FENETRE - cst.TAILLE_CASES - x, y,cst.TAILLE_CASES, cst.TAILLE_CASES, cst.COULEURS_JOUEURS[2]) #Ruche Joueur 2
+                self.fenetre.dessinerRectangle(cst.TAILLE_FENETRE - cst.TAILLE_CASES - x, cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, cst.COULEURS_JOUEURS[3]) #Ruche Joueur 3
+                self.fenetre.dessinerRectangle(x,cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, cst.COULEURS_JOUEURS[4]) #Ruche Joueur 4
         # Dessiner les fleurs
-        marge = (cst.TAILLE_CASES) // 4
+        marge = (cst.TAILLE_CASES) // 2-30 # Pour centrer l'image dans la case, la valeur 30 dépend de la taille de l'image qui est de 60x60
         for fleur in self.fleurs:
             self.fenetre.afficherImage(fleur.x * cst.TAILLE_CASES + marge, fleur.y * cst.TAILLE_CASES + marge,'sprites/fleur.png')
+        
+        for ab in self.abeilles:
+            # Calcul de la position pixel
+            x = ab.x * cst.TAILLE_CASES
+            y = ab.y * cst.TAILLE_CASES
             
+            
+            # On dessine un carré centré, un peu plus petit que la case (marge de 10)
+            marge = 10
+            taille_abeille = cst.TAILLE_CASES - (marge * 2)
+            
+            self.fenetre.dessinerRectangle(
+                x + marge, 
+                y + marge, 
+                taille_abeille, 
+                taille_abeille, 
+                'orange'
+            )
 
 
 partie = Jeu()
