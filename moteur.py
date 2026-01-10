@@ -24,25 +24,35 @@ class Jeu:
     
 
     def placer_ruches(self):
+        taille = cst.TAILLE_BASE # 4
+        n = cst.NCASES
         # Ruche Joueur 1 (Haut-Gauche)
         r1 = Ruche(0, 0, 1)
         self.ruches.append(r1)
-        self.grille[0][0] = r1  # On la place sur la grille
+        for x in range(taille):
+            for y in range(taille):
+                self.grille[x][y] = r1  # On la place sur la grille
+
 
         # Ruche Joueur 2 (Haut-Droite)
         r2 = Ruche(cst.NCASES - 1, 0, 2)
         self.ruches.append(r2)
-        self.grille[cst.NCASES - 1][0] = r2
+        for x in range(n - taille, n):
+            for y in range(taille):
+                self.grille[x][y] = r2
 
         # Ruche Joueur 3 (Bas-Droite)
         r3 = Ruche(cst.NCASES - 1, cst.NCASES - 1, 3)
         self.ruches.append(r3)
-        self.grille[cst.NCASES - 1][cst.NCASES - 1] = r3
-
+        for x in range(n - taille, n):
+            for y in range(n - taille, n):
+                self.grille[x][y] = r3
         # Ruche Joueur 4 (Bas-Gauche)
         r4 = Ruche(0, cst.NCASES - 1, 4)
         self.ruches.append(r4)
-        self.grille[0][cst.NCASES - 1] = r4
+        for x in range(taille):
+            for y in range(n - taille, n):
+                self.grille[x][y] = r4
 
     def placer_fleur(self):
         cpt = 0
@@ -109,21 +119,29 @@ class Jeu:
             for x in range(cst.NCASES):
                 contenu = self.grille[x][y]
                 if contenu == None:
-                    ligne = ligne + "-   "  # Un point pour le vide
+                    ligne = ligne + ".   "  # Un point pour le vide
                 else:
                     ligne = ligne + str(contenu) + " " # L'objet s'il y en a un
             print(ligne)
 
-    def case_autorisee(self, cible_x: int, cible_y: int) -> bool:
+    def case_autorisee(self, abeille, x: int, y: int) -> bool:
         """Vérifie si la case (x,y) est bloquante ou non. Renvoie True si la case est autorisée."""
-        contenu = self.grille[cible_x][cible_y]
-        if contenu is None or isinstance(contenu, Fleurs) or self.abeilles[0].joueur == contenu.joueur:
-            return True
-        return False
+        contenu = self.grille[x][y]
+
+        # Si c'est une ruche ennemie
+        if isinstance(contenu, Ruche) and contenu.joueur != abeille.joueur:
+            return False
+
+        # Vérification des autres abeilles 
+        for autre_abeille in self.abeilles:
+            # On vérifie si quelqu'un est déjà à cette position (x, y)
+            if autre_abeille.x == x and autre_abeille.y == y: # Si c'est l'abeille elle-même, on l'ignore (Cas ou on reclique sur sa propre la case)
+                if autre_abeille is not abeille:
+                    return False
+        return True
 
     def run(self):
         abeille = self.abeilles[0]
-
         
         while True:
              # Attendre un clic de souris   
@@ -137,9 +155,9 @@ class Jeu:
             gx = cx // cst.TAILLE_CASES
             gy = cy // cst.TAILLE_CASES
 
-            if 0 <= gx < cst.NCASES and 0 <= gy < cst.NCASES and self.case_autorisee(gx, gy):
-                #On deplace la premiere abeille vers la case cliquee
-                abeille.deplacer_vers_case(gx, gy)
+            if 0 <= gx < cst.NCASES and 0 <= gy < cst.NCASES and self.case_autorisee(abeille, gx, gy):
+                
+                abeille.deplacer_vers_case(gx, gy) 
                 self.afficher()
             
             #Pour gerer la fermeture de la fenetre  
