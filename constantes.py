@@ -14,9 +14,5 @@ COULEURS_JOUEURS= {
             3: 'green',   # Joueur 3 (Bas-Droite)
             4: 'yellow'   # Joueur 4 (Bas-Gauche)
         }
-TOUCHES_DIR = {
-    'Up': (0, -1),          
-    'Down': (0, 1),
-    'Left': (-1, 0),
-    'Right': (1, 0)
-    }
+DIRECTIONS = [(0, -1),(0, 1), (-1, 0), (1, 0)]
+    
