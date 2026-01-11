@@ -146,6 +146,7 @@ class Jeu:
         return None
     
     def run(self):
+        self.afficher()
         abeille = None
         
         while True:
@@ -214,5 +215,5 @@ class Jeu:
 
 partie = Jeu()
 partie.afficher_terminal()
-partie.afficher()
 partie.run()
+ 
