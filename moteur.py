@@ -140,25 +140,38 @@ class Jeu:
                     return False
         return True
 
+    def recuperer_abeille(self, x, y):
+        """Renvoie l'abeille située en (x,y), ou None s'il n'y en a pas."""
+        for ab in self.abeilles:
+            if ab.x == x and ab.y == y:
+                return ab
+        return None
+    
     def run(self):
-        abeille = self.abeilles[0]
+        abeille = None
         
         while True:
              # Attendre un clic de souris   
             clic = self.fenetre.attendreClic()
-            #On recupere les coordonnees du clic
-            if clic is None:
-                break
-            cx = clic.x
-            cy = clic.y
+            
             #On convertit en coordonnees de la grille
-            gx = cx // cst.TAILLE_CASES
-            gy = cy // cst.TAILLE_CASES
+            gx = clic.x // cst.TAILLE_CASES
+            gy = clic.y // cst.TAILLE_CASES
 
-            if 0 <= gx < cst.NCASES and 0 <= gy < cst.NCASES and self.case_autorisee(abeille, gx, gy):
+            abeille_cliquee = self.recuperer_abeille(gx, gy)
+
+            if abeille_cliquee is not None:
+                # C'est une abeille qui a été cliquée
                 
-                abeille.deplacer_vers_case(gx, gy) 
-                self.afficher()
+                    abeille = abeille_cliquee
+            
+            
+            else : # Ce n'est pas une abeille, on tente de déplacer l'abeille sélectionnée
+                if abeille is not None:
+
+                    if 0 <= gx < cst.NCASES and 0 <= gy < cst.NCASES and self.case_autorisee(abeille, gx, gy):
+                        abeille.deplacer_vers_case(gx, gy) 
+                        self.afficher()
             
             #Pour gerer la fermeture de la fenetre  
             fermer = self.fenetre.recupererTouche()
@@ -170,19 +183,19 @@ class Jeu:
 
     def afficher(self):
         #Colorier le fond
-        self.fenetre.dessinerRectangle(0,0,cst.TAILLE_FENETRE,cst.TAILLE_FENETRE,'lightblue')
+        self.fenetre.dessinerRectangle(0,0,cst.TAILLE_CARTE,cst.TAILLE_CARTE,'lightblue')
         # Dessiner la grille
-        for x in range(0,cst.TAILLE_FENETRE,cst.TAILLE_CASES):
-            for y in range(0,cst.TAILLE_FENETRE,cst.TAILLE_CASES):
-                self.fenetre.dessinerLigne(x,0,x,cst.TAILLE_FENETRE,'blue')
-                self.fenetre.dessinerLigne(0,y,cst.TAILLE_FENETRE,y,'blue')
+        for x in range(0,cst.TAILLE_CARTE,cst.TAILLE_CASES):
+            for y in range(0,cst.TAILLE_CARTE,cst.TAILLE_CASES):
+                self.fenetre.dessinerLigne(x,0,x,cst.TAILLE_CARTE,'blue')
+                self.fenetre.dessinerLigne(0,y,cst.TAILLE_CARTE,y,'blue')
         # Dessiner les ruches
         for x in range (0,cst.TAILLE_CASES*cst.TAILLE_BASE,cst.TAILLE_CASES):
             for y in range (0,cst.TAILLE_CASES*cst.TAILLE_BASE,cst.TAILLE_CASES):
                 self.fenetre.dessinerRectangle(x,y,cst.TAILLE_CASES,cst.TAILLE_CASES,cst.COULEURS_JOUEURS[1]) #Ruche Joueur 1
-                self.fenetre.dessinerRectangle(cst.TAILLE_FENETRE - cst.TAILLE_CASES - x, y,cst.TAILLE_CASES, cst.TAILLE_CASES, cst.COULEURS_JOUEURS[2]) #Ruche Joueur 2
-                self.fenetre.dessinerRectangle(cst.TAILLE_FENETRE - cst.TAILLE_CASES - x, cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, cst.COULEURS_JOUEURS[3]) #Ruche Joueur 3
-                self.fenetre.dessinerRectangle(x,cst.TAILLE_FENETRE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, cst.COULEURS_JOUEURS[4]) #Ruche Joueur 4
+                self.fenetre.dessinerRectangle(cst.TAILLE_CARTE - cst.TAILLE_CASES - x, y,cst.TAILLE_CASES, cst.TAILLE_CASES, cst.COULEURS_JOUEURS[2]) #Ruche Joueur 2
+                self.fenetre.dessinerRectangle(cst.TAILLE_CARTE - cst.TAILLE_CASES - x, cst.TAILLE_CARTE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, cst.COULEURS_JOUEURS[3]) #Ruche Joueur 3
+                self.fenetre.dessinerRectangle(x,cst.TAILLE_CARTE - cst.TAILLE_CASES - y, cst.TAILLE_CASES, cst.TAILLE_CASES, cst.COULEURS_JOUEURS[4]) #Ruche Joueur 4
         # Dessiner les fleurs
         marge = (cst.TAILLE_CASES) // 2-30 # Pour centrer l'image dans la case, la valeur 30 dépend de la taille de l'image qui est de 60x60
         for fleur in self.fleurs:
