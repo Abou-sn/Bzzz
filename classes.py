@@ -18,10 +18,11 @@ class Abeilles :
         if (dx, dy) in self.directions_possibles:
             return True
         return False
+    
 
     def deplacer_vers_case(self, cible_x: int, cible_y: int) -> bool:
         """Tente de déplacer l'abeille vers la case (x,y). Renvoie True si réussi."""
-        if self.peut_aller_vers(cible_x, cible_y):
+        if self.peut_aller_vers(cible_x, cible_y): #Renvoi True
             #On effectue le déplacement
             self.x = cible_x
             self.y = cible_y
@@ -33,6 +34,7 @@ class Ouvriere (Abeilles) :
         super().__init__(joueur, x, y)
         self.force = 1
         self.qte_nectar_max = 12
+        self.image = 'sprites/ouvriere.png'
     
     def __repr__(self) -> str:
         return f"O{self.joueur}"
@@ -42,6 +44,7 @@ class Bourdon (Abeilles) :
         super().__init__(joueur, x, y)
         self.force = 5
         self.qte_nectar_max = 1
+        self.image = 'sprites/bourdon.png'
 
     def __repr__(self) -> str:
         return f"B{self.joueur}"
@@ -53,6 +56,7 @@ class Eclaireuse (Abeilles) :
         self.qte_nectar_max = 3
         self.directions_possibles = [(0, -1),(0, 1), (-1, 0), (1, 0)
                                      ,(-1, -1), (-1, 1), (1, -1), (1, 1)] #Les 8 directions possibles pour une éclaireuse
+        self.image = 'sprites/eclaireuse.png'
     def __repr__(self) -> str:
         return f"E{self.joueur}"
 

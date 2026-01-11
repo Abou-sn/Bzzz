@@ -19,9 +19,8 @@ class Jeu:
         self.placer_ruches()
         self.placer_fleur()
 
-       
-        self.creer_abeille("Ouvriere")
-    
+
+        self.creer_abeille("Eclaireuse")
 
     def placer_ruches(self):
         taille = cst.TAILLE_BASE # 4
@@ -112,7 +111,6 @@ class Jeu:
         
             self.abeilles.append(abeille)
 
-        # Dans moteur.py, dans la classe Jeu
     def afficher_terminal(self):
         for y in range(cst.NCASES):
             ligne = ""
@@ -211,13 +209,7 @@ class Jeu:
             marge = 10
             taille_abeille = cst.TAILLE_CASES - (marge * 2)
             
-            self.fenetre.dessinerRectangle(
-                x + marge, 
-                y + marge, 
-                taille_abeille, 
-                taille_abeille, 
-                'orange'
-            )
+            self.fenetre.afficherImage(x, y , ab.image)
 
 
 partie = Jeu()
