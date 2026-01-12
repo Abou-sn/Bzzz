@@ -7,9 +7,12 @@ from typing import Any
 class Jeu:
     def __init__(self):
         #Création de la grille vide
-        # On précise que c'est une liste de listes contenant "N'importe quoi" (Any)
+        # On précise que c'est une liste de listes pouvant contenir "N'importe quoi" (Any)
         self.grille: list[list[Any]] = [[None for y in range(cst.NCASES)] for x in range(cst.NCASES)]
-        self.fenetre = tke.ouvrirFenetre(cst.TAILLE_FENETRE, cst.TAILLE_FENETRE) #Créer la fenêtre
+        self.fenetre = tke.ouvrirFenetre(cst.TAILLE_CARTE+ cst.TAILLE_BANNIERE, cst.TAILLE_CARTE ) #Créer la fenêtre
+        #Pour les tours de jeu
+        self.joueur_actuel = 1
+        
         #listes des objets
         self.ruches = []
         self.fleurs = []
@@ -18,7 +21,6 @@ class Jeu:
         # Placer les ruches aux coins
         self.placer_ruches()
         self.placer_fleur()
-
 
         self.creer_abeille("Eclaireuse")
 
@@ -144,7 +146,9 @@ class Jeu:
             if ab.x == x and ab.y == y:
                 return ab
         return None
-    
+
+        
+
     def run(self):
         self.afficher()
         abeille = None
@@ -159,7 +163,7 @@ class Jeu:
 
             abeille_cliquee = self.recuperer_abeille(gx, gy)
 
-            if abeille_cliquee is not None:
+            if abeille_cliquee is not None and abeille_cliquee.joueur == self.joueur_actuel:
                 # C'est une abeille qui a été cliquée
                 
                     abeille = abeille_cliquee
@@ -169,8 +173,10 @@ class Jeu:
                 if abeille is not None:
 
                     if 0 <= gx < cst.NCASES and 0 <= gy < cst.NCASES and self.case_autorisee(abeille, gx, gy):
-                        abeille.deplacer_vers_case(gx, gy) 
+                        abeille.deplacer_vers_case(gx, gy)
                         self.afficher()
+                        self.joueur_actuel = (self.joueur_actuel % 4) + 1  # Passer au joueur suivant
+                        abeille = None  # Désélectionner l'abeille après le déplacement
             
             #Pour gerer la fermeture de la fenetre  
             fermer = self.fenetre.recupererTouche()
@@ -178,7 +184,6 @@ class Jeu:
                 break
         
         self.fenetre.fermerFenetre()
-
 
     def afficher(self):
         #Colorier le fond
