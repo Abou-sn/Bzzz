@@ -262,7 +262,6 @@ class Jeu:
 
             #Mouvement + Ponte + Fin de tour
             while not fin_du_tour:
-                cpt += 1
                 #Gestion du Clavier (Ponte, Fin de tour, Quitter)
                 touche = self.fenetre.recupererTouche()
                 if touche == 'Escape':
