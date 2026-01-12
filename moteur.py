@@ -1,5 +1,5 @@
 import constantes as cst
-from classes import Ruche, Fleurs, Ouvriere, Bourdon, Eclaireuse
+from classes import Ruche, Fleurs, Abeilles, Ouvriere, Bourdon, Eclaireuse
 from random import randint
 import tkiteasy as tke
 from typing import Any
@@ -22,7 +22,6 @@ class Jeu:
         self.placer_ruches()
         self.placer_fleur()
 
-        self.creer_abeille("Eclaireuse")
 
     def placer_ruches(self):
         taille = cst.TAILLE_BASE # 4
@@ -95,23 +94,29 @@ class Jeu:
                 
                 cpt += 1
 
-    def creer_abeille(self, type_abeille: str) -> None:
+    def ponte(self, type_abeille: str) -> None:
         for ruche in self.ruches:
             #On recupere les infos de la ruche du joueur
             x = ruche.x
             y = ruche.y
             joueur = ruche.joueur
 
-            if type_abeille == "Ouvriere":
-                abeille = Ouvriere(joueur, x, y)
-            elif type_abeille == "Bourdon":
-                abeille = Bourdon(joueur, x, y)
-            elif type_abeille == "Eclaireuse":
-                abeille = Eclaireuse(joueur, x, y)
+            if joueur == self.joueur_actuel and ruche.stock_nectar >= cst.COUT_PONTE and self.recuperer_abeille(x, y) is None:
+
+
+                if type_abeille == "Ouvriere" or type_abeille == "o":
+                    abeille = Ouvriere(joueur, x, y)
+                elif type_abeille == "Bourdon" or type_abeille == "b":
+                    abeille = Bourdon(joueur, x, y)
+                elif type_abeille == "Eclaireuse"  or type_abeille == "e":
+                    abeille = Eclaireuse(joueur, x, y)
+                else :
+                    print("Type d'abeille inconnu.")
+                    return  # Type d'abeille inconnu on 
+                self.abeilles.append(abeille)
+                ruche.stock_nectar -= cst.COUT_PONTE
             else:
-                raise ValueError("Type d'abeille inconnu")
-        
-            self.abeilles.append(abeille)
+                pass  # La ruche n'a pas assez de nectar ou ce n'est pas son tour
 
     def afficher_terminal(self):
         for y in range(cst.NCASES):
@@ -147,11 +152,45 @@ class Jeu:
                 return ab
         return None
 
+    def butiner(self, abeille, fleur : Fleurs) -> None:
+        """Permet à une abeille de butiner une fleur."""
+        recolte = 0
+        nectar_disponible = fleur.qte_nectar # Nectar disponible dans la fleur
+        capacite_restante = abeille.qte_nectar_max - abeille.qte_points # Capacité restante de l'abeille
+
+        if nectar_disponible >= cst.MAX_NECTAR * 2 // 3: # Si la fleur a au moins des 2/3 de nectar
+            recolte = 3
+        elif nectar_disponible >= cst.MAX_NECTAR // 3 and nectar_disponible < cst.MAX_NECTAR * 2 // 3: # Si la fleur a au moins 1/3 de nectar
+            recolte = 2
+        else :
+            recolte = 1
+
+        if capacite_restante <= abeille.qte_nectar_max:  # Si l'abeille à encore de la place
         
+            abeille.qte_points += min(recolte, capacite_restante) #Dans le cas ou la recolte est plus grande que la capacite restante
+            fleur.qte_nectar -= recolte
+    
+    def phase_butinage(self) -> None:
+        for abeille in self.abeilles:
+            x = abeille.x
+            y = abeille.y
+            # Vérifier si l'abeille est sur une fleur
+            if abeille.joueur == self.joueur_actuel:
+                if isinstance(self.grille[x][y], Fleurs):
+                    fleur = self.grille[x][y]
+                    self.butiner(abeille, fleur)
 
     def run(self):
         self.afficher()
         abeille = None
+        type_abeille = self.fenetre.attendreTouche()
+        if type_abeille in ['Ouvriere', 'o', 'Bourdon', 'b', 'Eclaireuse', 'e']:
+            self.ponte(type_abeille)
+        else :
+            type_abeille = self.fenetre.attendreTouche()
+            self.ponte(type_abeille)
+
+        self.afficher()
         
         while True:
              # Attendre un clic de souris   
@@ -175,8 +214,13 @@ class Jeu:
                     if 0 <= gx < cst.NCASES and 0 <= gy < cst.NCASES and self.case_autorisee(abeille, gx, gy):
                         abeille.deplacer_vers_case(gx, gy)
                         self.afficher()
-                        self.joueur_actuel = (self.joueur_actuel % 4) + 1  # Passer au joueur suivant
-                        abeille = None  # Désélectionner l'abeille après le déplacement
+                        fin_de_tour = self.fenetre.recupererTouche()
+                        if fin_de_tour == 'Enter':
+                            self.joueur_actuel = (self.joueur_actuel % 4) + 1  # Passer au joueur suivant
+
+                        self.ponte(self.fenetre.attendreTouche())
+                        self.afficher()
+                        
             
             #Pour gerer la fermeture de la fenetre  
             fermer = self.fenetre.recupererTouche()
