@@ -12,7 +12,10 @@ class Jeu:
         self.fenetre = tke.ouvrirFenetre(cst.TAILLE_CARTE+ cst.TAILLE_BANNIERE, cst.TAILLE_CARTE ) #Créer la fenêtre
         #Pour les tours de jeu
         self.joueur_actuel = 1
+
+        self.compteur_tours = 0 # Compteur global de tours
         
+
         #listes des objets
         self.ruches = []
         self.fleurs = []
@@ -21,6 +24,13 @@ class Jeu:
         # Placer les ruches aux coins
         self.placer_ruches()
         self.placer_fleur()
+
+        # On calcule le nectar total présent sur le plateau au début
+        self.nectar_total_initial = 0
+        for fleur in self.fleurs:
+            self.nectar_total_initial += fleur.qte_nectar
+
+        
 
 
     def placer_ruches(self):
@@ -170,21 +180,80 @@ class Jeu:
             abeille.qte_points += min(recolte, capacite_restante) #Dans le cas ou la recolte est plus grande que la capacite restante
             fleur.qte_nectar -= recolte
     
-    def phase_butinage(self) -> None:
-        for abeille in self.abeilles:
+    def phase_butinage(self,abeille) -> None:
             x = abeille.x
             y = abeille.y
             # Vérifier si l'abeille est sur une fleur
             if abeille.joueur == self.joueur_actuel:
                 if isinstance(self.grille[x][y], Fleurs):
+                    print("Butinage en cours...")
                     fleur = self.grille[x][y]
                     self.butiner(abeille, fleur)
+    
+    def deposer_nectar(self, abeille):
+            """Vérifie si l'abeille est sur sa ruche et dépose le nectar si oui."""
+            x, y = abeille.x, abeille.y
+            contenu = self.grille[x][y]
+            
+            # Si la case contient une ruche et que c'est celle du joueur
+            if isinstance(contenu, Ruche) and contenu.joueur == abeille.joueur:
+                if abeille.qte_points > 0:
+                    # Transfert du nectar
+                    contenu.stock_nectar += abeille.qte_points
+                    print(f"Dépot de {abeille.qte_points} nectar dans la ruche !")
+                    
+                    # On vide l'abeille
+                    abeille.qte_points = 0
 
+    def verifier_fin_jeu(self):
+        """
+        Vérifie les 3 conditions de fin du jeu.
+        Retourne (True, id_gagnant) si le jeu est fini.
+        Retourne (False, None) si le jeu continue.
+        """
+        
+        # 1. VICTOIRE BLITZKRIEG (Plus de 50% du nectar total)
+        majorite = self.nectar_total_initial / 2
+        for ruche in self.ruches:
+            if ruche.stock_nectar > majorite:
+                return True, ruche.joueur
+
+        # 2. TIME OUT (Trop de tours)
+        if self.compteur_tours >= cst.TIME_OUT:
+            return True, self.trouver_meneur()
+
+        # 3. PÉNURIE (Plus de nectar sur fleurs ni abeilles)
+        nectar_en_jeu = 0
+        for fleur in self.fleurs:
+            nectar_en_jeu += fleur.qte_nectar
+        
+        for abeille in self.abeilles:
+            nectar_en_jeu += abeille.qte_points
+            
+        if nectar_en_jeu == 0:
+            return True, self.trouver_meneur()
+
+        # Si aucune condition n'est remplie, on continue
+        return False, None
+
+    def trouver_meneur(self):
+        """Retourne l'ID du joueur avec le plus de nectar dans sa ruche."""
+        meilleur_joueur = None
+        max_nectar = -1
+        
+        # En cas d'égalité, cette logique prend le premier trouvé (peut être affiné)
+        for ruche in self.ruches:
+            if ruche.stock_nectar > max_nectar:
+                max_nectar = ruche.stock_nectar
+                meilleur_joueur = ruche.joueur
+        
+        return meilleur_joueur
+    
     def run(self):
         # Boucle principale du jeu
-        while True:
+        jeu_en_cours = True
+        while jeu_en_cours:
             self.afficher()
-            
             fin_du_tour = False
             abeille_selectionnee = None
             abeilles_ayant_bouge = [] # Liste pour mémoriser qui a bougé ce tour-ci
@@ -193,6 +262,7 @@ class Jeu:
 
             #Mouvement + Ponte + Fin de tour
             while not fin_du_tour:
+                cpt += 1
                 #Gestion du Clavier (Ponte, Fin de tour, Quitter)
                 touche = self.fenetre.recupererTouche()
                 if touche == 'Escape':
@@ -205,6 +275,7 @@ class Jeu:
                         fin_du_tour = True
                         print("Fin du tour validée !")
                         self.joueur_actuel = (self.joueur_actuel % 4) + 1
+                        self.compteur_tours += 1
 
                 #Gestion de la Souris (Sélection, Mouvement, Validation)
                 clic = self.fenetre.recupererClic() # Non bloquant 
@@ -231,8 +302,28 @@ class Jeu:
                         if 0 <= gx < cst.NCASES and 0 <= gy < cst.NCASES and self.case_autorisee(abeille_selectionnee, gx, gy):
                             # Déplacement
                             abeille_selectionnee.deplacer_vers_case(gx, gy)
+                            self.phase_butinage(abeille_selectionnee)
+                            self.deposer_nectar(abeille_selectionnee)
                             abeille_selectionnee = None  # Désélectionner après le déplacement
                             self.afficher()
+
+                            est_fini, gagnant = self.verifier_fin_jeu()
+                            
+                            if est_fini:
+                                self.afficher_ecran_fin(gagnant)
+                                return
+             #Dans le cas ou Time out est atteint ou plus de nectar en jeu               
+            est_fini, gagnant = self.verifier_fin_jeu()
+            if est_fini:
+                    self.afficher_ecran_fin(gagnant)
+                    return
+
+    
+    def afficher_ecran_fin(self, gagnant):
+        self.fenetre.dessinerRectangle(100, 100, cst.TAILLE_CARTE-200, 200, 'white')
+        self.fenetre.afficherTexte(f"VICTOIRE JOUEUR {gagnant} !", cst.TAILLE_CARTE//2, cst.TAILLE_CARTE//2, 'red', 40)
+        self.fenetre.attendreTouche()
+        self.fenetre.fermerFenetre()
 
     def afficher(self):
         #Colorier le fond
@@ -299,8 +390,12 @@ class Jeu:
         
         y_info += 100
         ligne_sep = "-" * 30 
-        Commande = f"Pour pondre une abeille appuyez  \n O (Ouvrière) \n B (Bourdon) \n E (Eclaireuse) \n {ligne_sep} \n Pour finir le tour : s \n {ligne_sep} \n  Pour quitter : Échap"
+        Commande = f"Pour pondre une abeille appuyez  \n O (Ouvrière) \n B (Bourdon) \n E (Eclaireuse) \n {ligne_sep} \n Pour finir le tour : S \n {ligne_sep} \n  Pour quitter : Échap"
         self.fenetre.afficherTexte(Commande, x_info, y_info, 'white',10)
+
+        y_info += 400
+        self.fenetre.afficherTexte("Butinez les fleurs pour \n récolter du nectar !", x_info, y_info, 'white',10)
+        
 
 
 partie = Jeu()
