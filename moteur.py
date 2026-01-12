@@ -181,53 +181,58 @@ class Jeu:
                     self.butiner(abeille, fleur)
 
     def run(self):
-        self.afficher()
-        abeille = None
-        type_abeille = self.fenetre.attendreTouche()
-        if type_abeille in ['Ouvriere', 'o', 'Bourdon', 'b', 'Eclaireuse', 'e']:
-            self.ponte(type_abeille)
-        else :
-            type_abeille = self.fenetre.attendreTouche()
-            self.ponte(type_abeille)
-
-        self.afficher()
-        
+        # Boucle principale du jeu
         while True:
-             # Attendre un clic de souris   
-            clic = self.fenetre.attendreClic()
+            self.afficher()
             
-            #On convertit en coordonnees de la grille
-            gx = clic.x // cst.TAILLE_CASES
-            gy = clic.y // cst.TAILLE_CASES
+            fin_du_tour = False
+            abeille_selectionnee = None
+            abeilles_ayant_bouge = [] # Liste pour mémoriser qui a bougé ce tour-ci
 
-            abeille_cliquee = self.recuperer_abeille(gx, gy)
+            print(f"Tour du Joueur {self.joueur_actuel}")
 
-            if abeille_cliquee is not None and abeille_cliquee.joueur == self.joueur_actuel:
-                # C'est une abeille qui a été cliquée
+            #Mouvement + Ponte + Fin de tour
+            while not fin_du_tour:
+                #Gestion du Clavier (Ponte, Fin de tour, Quitter)
+                touche = self.fenetre.recupererTouche()
+                if touche == 'Escape':
+                    self.fenetre.fermerFenetre()
+                    return
+                elif touche in ['o', 'b', 'e']:
+                    self.ponte(touche)
+                    self.afficher()
+                elif touche == 's':
+                        fin_du_tour = True
+                        print("Fin du tour validée !")
+                        self.joueur_actuel = (self.joueur_actuel % 4) + 1
+
+                #Gestion de la Souris (Sélection, Mouvement, Validation)
+                clic = self.fenetre.recupererClic() # Non bloquant 
                 
-                    abeille = abeille_cliquee
-            
-            
-            else : # Ce n'est pas une abeille, on tente de déplacer l'abeille sélectionnée
-                if abeille is not None:
+                if clic:
+                    gx = clic.x // cst.TAILLE_CASES
+                    gy = clic.y // cst.TAILLE_CASES
+                    
+                    abeille_cliquee = self.recuperer_abeille(gx, gy)
+                
+                    # Clic sur une de nos abeilles qui n'a pas encore bougé
+                    if abeille_cliquee is not None and abeille_cliquee.joueur == self.joueur_actuel:
+                        if abeille_cliquee not in abeilles_ayant_bouge:
+                            abeille_selectionnee = abeille_cliquee
+                            abeilles_ayant_bouge.append(abeille_cliquee)
+                        else:
+                            print("Cette abeille a déjà bougé ce tour-ci.")
+                            info = self.fenetre.afficherTexte("Cette abeille a déjà bougé ce tour-ci.", cst.TAILLE_CARTE //2, cst.TAILLE_CARTE //2, 'red', 30)
+                             # Attendre 1 seconde pour que le joueur puisse lire le message
 
-                    if 0 <= gx < cst.NCASES and 0 <= gy < cst.NCASES and self.case_autorisee(abeille, gx, gy):
-                        abeille.deplacer_vers_case(gx, gy)
-                        self.afficher()
-                        fin_de_tour = self.fenetre.recupererTouche()
-                        if fin_de_tour == 'Enter':
-                            self.joueur_actuel = (self.joueur_actuel % 4) + 1  # Passer au joueur suivant
-
-                        self.ponte(self.fenetre.attendreTouche())
-                        self.afficher()
-                        
-            
-            #Pour gerer la fermeture de la fenetre  
-            fermer = self.fenetre.recupererTouche()
-            if fermer == 'Escape':
-                break
-        
-        self.fenetre.fermerFenetre()
+                    # Si une abeille est sélectionnée et qu'on clique ailleurs
+                    elif abeille_selectionnee is not None:
+                        # On vérifie si la case est valide et autorisée
+                        if 0 <= gx < cst.NCASES and 0 <= gy < cst.NCASES and self.case_autorisee(abeille_selectionnee, gx, gy):
+                            # Déplacement
+                            abeille_selectionnee.deplacer_vers_case(gx, gy)
+                            abeille_selectionnee = None  # Désélectionner après le déplacement
+                            self.afficher()
 
     def afficher(self):
         #Colorier le fond
@@ -255,14 +260,49 @@ class Jeu:
             y = ab.y * cst.TAILLE_CASES
             
             
-            # On dessine un carré centré, un peu plus petit que la case (marge de 10)
-            marge = 10
-            taille_abeille = cst.TAILLE_CASES - (marge * 2)
-            
             self.fenetre.afficherImage(x, y , ab.image)
+
+        # --- ZONNE D'INFORMATIONS (BANDEAU DROIT) ---
+        # 1. Fond de la bannière
+        self.fenetre.dessinerRectangle(
+            cst.TAILLE_CARTE, 0, 
+            cst.TAILLE_BANNIERE, cst.TAILLE_CARTE, 
+            'blueviolet'
+        )
+
+        # 2. Affichage du Tour courant
+        # On décale un peu le texte par rapport au bord 
+        x_info = cst.TAILLE_CARTE + cst.TAILLE_BANNIERE // 2 
+        y_info = 50
+        
+        couleur_actuelle = cst.COULEURS_JOUEURS[self.joueur_actuel]
+        
+        self.fenetre.afficherTexte(
+            f"TOUR DU JOUEUR {self.joueur_actuel}", 
+            x_info, y_info, 
+            couleur_actuelle,
+            taille=15
+        )
+
+        # Affichage des stocks de nectar
+        y_info += 50 # On descend pour la ligne suivante
+        self.fenetre.afficherTexte("Stocks de Nectar :", x_info, y_info, 'black')
+        
+        y_info += 30 
+
+        for ruche in self.ruches:
+            couleur_ruche = cst.COULEURS_JOUEURS[ruche.joueur]
+            texte = f"Joueur {ruche.joueur} : {ruche.stock_nectar} points de nectar"
+            
+            self.fenetre.afficherTexte(texte, x_info, y_info, couleur_ruche)
+            y_info += 30 
+        
+        y_info += 100
+        ligne_sep = "-" * 30 
+        Commande = f"Pour pondre une abeille appuyez  \n O (Ouvrière) \n B (Bourdon) \n E (Eclaireuse) \n {ligne_sep} \n Pour finir le tour : s \n {ligne_sep} \n  Pour quitter : Échap"
+        self.fenetre.afficherTexte(Commande, x_info, y_info, 'white',10)
 
 
 partie = Jeu()
 partie.afficher_terminal()
 partie.run()
- 

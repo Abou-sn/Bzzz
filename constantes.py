@@ -8,7 +8,7 @@ COUT_PONTE = 5
 TIME_KO = 5
 TAILLE_CASES = 50 #La taille des cases, qui définira ensuite la taille de la fenêtre
 TAILLE_CARTE = NCASES * TAILLE_CASES
-TAILLE_BANNIERE = TAILLE_CARTE // 4 #On ajoute une marge pour les infos
+TAILLE_BANNIERE = TAILLE_CARTE // 2 #On ajoute une marge pour les infos
 COULEURS_JOUEURS= {
             1: 'blue',   # Joueur 1 (Haut-Gauche)
             2: 'red',     # Joueur 2 (Haut-Droite)
